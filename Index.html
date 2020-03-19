@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
 
     <style type="text/css">
         #mynetwork {
-            width: 600px;
-            height: 400px;
+            width: 95vw;
+            height: 95vh;
             border: 1px solid lightgray;
         }
     </style>
@@ -50,17 +52,28 @@
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet();
     var gephiImported;
-    var fixedCheckbox = document.getElementById("fixed");
-    fixedCheckbox.onchange = redrawAll;
-
-    var parseColorCheckbox = document.getElementById("parseColor");
-    parseColorCheckbox.onchange = redrawAll;
+    // var fixedCheckbox = document.getElementById("fixed");
+    // fixedCheckbox.onchange = redrawAll;
+    //
+    // var parseColorCheckbox = document.getElementById("parseColor");
+    // parseColorCheckbox.onchange = redrawAll;
 
     var nodeContent = document.getElementById("nodeContent");
 
-    loadJSON("../datasources/WorldCup2014.json", redrawAll, function(err) {
-        console.log("error");
+    // loadJSON("myGraph.json", redrawAll, function(err) {
+    //     console.log("error");
+    // });
+    var theJson = "";
+    $.getJSON("myGraph.json", function() {
+        console.log( "success" );
+    }).done(function(data){
+        theJson = data;
+        console.log(theJson);
+        redrawAll(theJson);
     });
+    // console.log(theJson);
+    // // console.log(theJson.Object.responseJSON);
+    // redrawAll(theJson);
 
     var container = document.getElementById("mynetwork");
     var data = {
@@ -115,12 +128,12 @@
         nodes.clear();
         edges.clear();
 
-        var fixed = fixedCheckbox.checked;
-        var parseColor = parseColorCheckbox.checked;
+        // var fixed = fixedCheckbox.checked;
+        // var parseColor = parseColorCheckbox.checked;
 
         var parsed = vis.parseGephiNetwork(gephiJSON, {
-            fixed: fixed,
-            parseColor: parseColor
+            fixed: false,
+            parseColor: false
         });
 
         // add the parsed data to the DataSets.
@@ -135,94 +148,94 @@
 
 
 </script>
-<script>
-    var network;
+<!--<script>-->
+<!--    var network;-->
 
-    var nodes = new vis.DataSet();
-    var edges = new vis.DataSet();
-    var gephiImported;
-    var fixedCheckbox = document.getElementById("fixed");
-    fixedCheckbox.onchange = redrawAll;
+<!--    var nodes = new vis.DataSet();-->
+<!--    var edges = new vis.DataSet();-->
+<!--    var gephiImported;-->
+<!--    var fixedCheckbox = document.getElementById("fixed");-->
+<!--    fixedCheckbox.onchange = redrawAll;-->
 
-    var parseColorCheckbox = document.getElementById("parseColor");
-    parseColorCheckbox.onchange = redrawAll;
+<!--    var parseColorCheckbox = document.getElementById("parseColor");-->
+<!--    parseColorCheckbox.onchange = redrawAll;-->
 
-    var nodeContent = document.getElementById("nodeContent");
+<!--    var nodeContent = document.getElementById("nodeContent");-->
 
-    loadJSON("../datasources/WorldCup2014.json", redrawAll, function(err) {
-        console.log("error");
-    });
+<!--    loadJSON("myGraph.json", redrawAll, function(err) {-->
+<!--        console.log("error");-->
+<!--    });-->
 
-    var container = document.getElementById("mynetwork");
-    var data = {
-        nodes: nodes,
-        edges: edges
-    };
-    var options = {
-        nodes: {
-            shape: "dot",
-            font: {
-                face: "Tahoma"
-            }
-        },
-        edges: {
-            width: 0.15,
-            smooth: {
-                type: "continuous"
-            }
-        },
-        interaction: {
-            tooltipDelay: 200,
-            hideEdgesOnDrag: true
-        },
-        physics: {
-            stabilization: false,
-            barnesHut: {
-                gravitationalConstant: -10000,
-                springConstant: 0.002,
-                springLength: 150
-            }
-        }
-    };
+<!--    var container = document.getElementById("mynetwork");-->
+<!--    var data = {-->
+<!--        nodes: nodes,-->
+<!--        edges: edges-->
+<!--    };-->
+<!--    var options = {-->
+<!--        nodes: {-->
+<!--            shape: "dot",-->
+<!--            font: {-->
+<!--                face: "Tahoma"-->
+<!--            }-->
+<!--        },-->
+<!--        edges: {-->
+<!--            width: 0.15,-->
+<!--            smooth: {-->
+<!--                type: "continuous"-->
+<!--            }-->
+<!--        },-->
+<!--        interaction: {-->
+<!--            tooltipDelay: 200,-->
+<!--            hideEdgesOnDrag: true-->
+<!--        },-->
+<!--        physics: {-->
+<!--            stabilization: false,-->
+<!--            barnesHut: {-->
+<!--                gravitationalConstant: -10000,-->
+<!--                springConstant: 0.002,-->
+<!--                springLength: 150-->
+<!--            }-->
+<!--        }-->
+<!--    };-->
 
-    network = new vis.Network(container, data, options);
-    network.on("click", function(params) {
-        if (params.nodes.length > 0) {
-            var data = nodes.get(params.nodes[0]); // get the data from selected node
-            nodeContent.innerHTML = JSON.stringify(data, undefined, 3); // show the data in the div
-        }
-    });
+<!--    network = new vis.Network(container, data, options);-->
+<!--    network.on("click", function(params) {-->
+<!--        if (params.nodes.length > 0) {-->
+<!--            var data = nodes.get(params.nodes[0]); // get the data from selected node-->
+<!--            nodeContent.innerHTML = JSON.stringify(data, undefined, 3); // show the data in the div-->
+<!--        }-->
+<!--    });-->
 
-    /**
-     * This function fills the DataSets. These DataSets will update the network.
-     */
-    function redrawAll(gephiJSON) {
-        if (gephiJSON.nodes === undefined) {
-            gephiJSON = gephiImported;
-        } else {
-            gephiImported = gephiJSON;
-        }
+<!--    /**-->
+<!--     * This function fills the DataSets. These DataSets will update the network.-->
+<!--     */-->
+<!--    function redrawAll(gephiJSON) {-->
+<!--        if (gephiJSON.nodes === undefined) {-->
+<!--            gephiJSON = gephiImported;-->
+<!--        } else {-->
+<!--            gephiImported = gephiJSON;-->
+<!--        }-->
 
-        nodes.clear();
-        edges.clear();
+<!--        nodes.clear();-->
+<!--        edges.clear();-->
 
-        var fixed = fixedCheckbox.checked;
-        var parseColor = parseColorCheckbox.checked;
+<!--        var fixed = fixedCheckbox.checked;-->
+<!--        var parseColor = parseColorCheckbox.checked;-->
 
-        var parsed = vis.parseGephiNetwork(gephiJSON, {
-            fixed: fixed,
-            parseColor: parseColor
-        });
+<!--        var parsed = vis.parseGephiNetwork(gephiJSON, {-->
+<!--            fixed: fixed,-->
+<!--            parseColor: parseColor-->
+<!--        });-->
 
-        // add the parsed data to the DataSets.
-        nodes.add(parsed.nodes);
-        edges.add(parsed.edges);
+<!--        // add the parsed data to the DataSets.-->
+<!--        nodes.add(parsed.nodes);-->
+<!--        edges.add(parsed.edges);-->
 
-        var data = nodes.get(2); // get the data from node 2 as example
-        nodeContent.innerHTML = JSON.stringify(data, undefined, 3); // show the data in the div
-        network.fit(); // zoom to fit
-    }
+<!--        var data = nodes.get(2); // get the data from node 2 as example-->
+<!--        nodeContent.innerHTML = JSON.stringify(data, undefined, 3); // show the data in the div-->
+<!--        network.fit(); // zoom to fit-->
+<!--    }-->
 
-</script>
+<!--</script>-->
 </body>
 </html>
