@@ -15,21 +15,14 @@
 </head>
 <body>
 <div id="mynetwork"></div>
-<input type="checkbox" id="fixed">
-<input type="color" id="parseColor">
 <input type="text" placeholder="Address" id="node_address_input">
 <input type="button" onclick="clusterByConnection()" value="Cluster node and its connections"/>
+
 <script type="text/javascript">
     var network;
-
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet();
     var gephiImported;
-    var fixedCheckbox = document.getElementById("fixed");
-    fixedCheckbox.onchange = redrawAll;
-
-    var parseColorCheckbox = document.getElementById("parseColor");
-    parseColorCheckbox.onchange = redrawAll;
 
     var nodeContent = document.getElementById("nodeContent");
 
@@ -54,14 +47,14 @@
             }
         },
         edges: {
-            width: 0.15,
+            value: 4,
             smooth: {
                 type: "continuous"
             }
         },
         interaction: {
             tooltipDelay: 200,
-            hideEdgesOnDrag: true
+            // hideEdgesOnDrag: true
         },
         physics: {
             stabilization: false,
@@ -70,24 +63,33 @@
                 springConstant: 0.002,
                 springLength: 150
             }
-        },
-        joinCondition:function(nodeOptions) {
-            return nodeOptions.cid === 1;
         }
     };
-
+    console.log(data)
     network = new vis.Network(container, data, options);
-    network.on("click", function(params) {
-        if (params.nodes.length > 0) {
-            var data = nodes.get(params.nodes[0]); // get the data from selected node
-            nodeContent.innerHTML = JSON.stringify(data, undefined, 3); // show the data in the div
+
+
+    network.on("selectNode", function(params) {
+        if (params.nodes.length === 1) {
+            if (network.isCluster(params.nodes[0]) === true) {
+                network.openCluster(params.nodes[0]);
+            }
         }
     });
+    function clusterByConnection() {
+        network.setData(data);
+        network.clusterByConnection(document.getElementById("node_address_input").value);
+    }
+
 
     /**
      * This function fills the DataSets. These DataSets will update the network.
      */
     function redrawAll(gephiJSON) {
+        console.log("fissa");
+        console.log(gephiJSON);
+        console.log(gephiJSON.edges);
+        console.log(gephiJSON.edges[0]);
         if (gephiJSON.nodes === undefined) {
             gephiJSON = gephiImported;
         } else {
@@ -97,122 +99,35 @@
         nodes.clear();
         edges.clear();
 
-        var fixed = fixedCheckbox.checked;
-        var parseColor = parseColorCheckbox.checked;
+        var parsed_2 = parse_json(gephiJSON);
+        console.log(parsed_2);
 
         var parsed = vis.parseGephiNetwork(gephiJSON, {
             fixed: false,
             parseColor: false
         });
-
+        console.log(parsed);
+        console.log(typeof parsed.edges[0]);
         // add the parsed data to the DataSets.
-        nodes.add(parsed.nodes);
-        edges.add(parsed.edges);
+        nodes.add(gephiJSON.nodes);
+        edges.add(parsed_2.edges);
 
         var data = nodes.get(2); // get the data from node 2 as example
-        nodeContent.innerHTML = JSON.stringify(data, undefined, 3); // show the data in the div
+        // nodeContent.innerHTML = JSON.stringify(data, undefined, 3); // show the data in the div
         network.fit(); // zoom to fit
-        network.on("selectNode", function(params) {
-            if (params.nodes.length === 1) {
-                if (network.isCluster(params.nodes[0]) === true) {
-                    network.openCluster(params.nodes[0]);
-                }
-            }
-        });
-        function clusterByConnection() {
-            network.setData(data);
-            network.clusterByConnection(document.getElementById("node_address_input").value);
-        }
     }
+
+    function parse_json(JSON) {
+        let parsed_json = [];
+        parsed_json.edges = [];
+        parsed_json.nodes = [];
+
+        for(i=0;i < JSON.edges.length;i++) {
+            parsed_json.edges.push({from:JSON.edges[i].source,to:JSON.edges[i].target,value:JSON.edges[i].width,color:JSON.edges[i].color})
+        }
+        return parsed_json;
+    }
+
 </script>
-<!--<script>-->
-<!--    var network;-->
-
-<!--    var nodes = new vis.DataSet();-->
-<!--    var edges = new vis.DataSet();-->
-<!--    var gephiImported;-->
-<!--    var fixedCheckbox = document.getElementById("fixed");-->
-<!--    fixedCheckbox.onchange = redrawAll;-->
-
-<!--    var parseColorCheckbox = document.getElementById("parseColor");-->
-<!--    parseColorCheckbox.onchange = redrawAll;-->
-
-<!--    var nodeContent = document.getElementById("nodeContent");-->
-
-<!--    loadJSON("myGraph.json", redrawAll, function(err) {-->
-<!--        console.log("error");-->
-<!--    });-->
-
-<!--    var container = document.getElementById("mynetwork");-->
-<!--    var data = {-->
-<!--        nodes: nodes,-->
-<!--        edges: edges-->
-<!--    };-->
-<!--    var options = {-->
-<!--        nodes: {-->
-<!--            shape: "dot",-->
-<!--            font: {-->
-<!--                face: "Tahoma"-->
-<!--            }-->
-<!--        },-->
-<!--        edges: {-->
-<!--            width: 0.15,-->
-<!--            smooth: {-->
-<!--                type: "continuous"-->
-<!--            }-->
-<!--        },-->
-<!--        interaction: {-->
-<!--            tooltipDelay: 200,-->
-<!--            hideEdgesOnDrag: true-->
-<!--        },-->
-<!--        physics: {-->
-<!--            stabilization: false,-->
-<!--            barnesHut: {-->
-<!--                gravitationalConstant: -10000,-->
-<!--                springConstant: 0.002,-->
-<!--                springLength: 150-->
-<!--            }-->
-<!--        }-->
-<!--    };-->
-
-<!--    network = new vis.Network(container, data, options);-->
-<!--    network.on("click", function(params) {-->
-<!--        if (params.nodes.length > 0) {-->
-<!--            var data = nodes.get(params.nodes[0]); // get the data from selected node-->
-<!--            nodeContent.innerHTML = JSON.stringify(data, undefined, 3); // show the data in the div-->
-<!--        }-->
-<!--    });-->
-
-<!--    /**-->
-<!--     * This function fills the DataSets. These DataSets will update the network.-->
-<!--     */-->
-<!--    function redrawAll(gephiJSON) {-->
-<!--        if (gephiJSON.nodes === undefined) {-->
-<!--            gephiJSON = gephiImported;-->
-<!--        } else {-->
-<!--            gephiImported = gephiJSON;-->
-<!--        }-->
-
-<!--        nodes.clear();-->
-<!--        edges.clear();-->
-
-<!--        var fixed = fixedCheckbox.checked;-->
-<!--        var parseColor = parseColorCheckbox.checked;-->
-
-<!--        var parsed = vis.parseGephiNetwork(gephiJSON, {-->
-<!--            fixed: fixed,-->
-<!--            parseColor: parseColor-->
-<!--        });-->
-
-<!--        // add the parsed data to the DataSets.-->
-<!--        nodes.add(parsed.nodes);-->
-<!--        edges.add(parsed.edges);-->
-
-<!--        var data = nodes.get(2); // get the data from node 2 as example-->
-<!--        nodeContent.innerHTML = JSON.stringify(data, undefined, 3); // show the data in the div-->
-<!--        network.fit(); // zoom to fit-->
-<!--    }-->
-
-<!--</script>-->
 </body>
 </html>
