@@ -101,9 +101,10 @@
         var clusterOptionsByData = {
             clusterNodeProperties: {
                 id: 'cluster_' + address,
-                label: address,
+                title: address,
+                label: 'Click to uncluster',
                 color: color,
-                shape: 'database'
+                shape: 'hexagon'
             }
         };
         network.clusterByConnection(address, clusterOptionsByData);
