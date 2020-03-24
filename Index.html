@@ -78,7 +78,17 @@
     });
     function clusterByConnection() {
         network.setData(data);
-        network.clusterByConnection(document.getElementById("node_address_input").value);
+        let address = document.getElementById("node_address_input").value;
+        let color = data.nodes.get(address).color;
+        var clusterOptionsByData = {
+            clusterNodeProperties: {
+                id: 'cluster_' + address,
+                label: address,
+                color: color,
+                shape: 'database'
+            }
+        };
+        network.clusterByConnection(address, clusterOptionsByData);
     }
 
 
