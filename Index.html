@@ -15,57 +15,24 @@
 </head>
 <body>
 <div id="mynetwork"></div>
+<input type="text" placeholder="Address" id="node_address_input">
+<input type="button" onclick="clusterByConnection()" value="Cluster node and its connections"/>
 
 <script type="text/javascript">
-    // create an array with nodes
-    var nodes = new vis.DataSet([
-        {id: 1, label: 'Node 1'},
-        {id: 2, label: 'Node 2'},
-        {id: 3, label: 'Node 3'},
-        {id: 4, label: 'Node 4'},
-        {id: 5, label: 'Node 5'}
-    ]);
-
-    // create an array with edges
-    var edges = new vis.DataSet([
-        {from: 1, to: 3},
-        {from: 1, to: 2},
-        {from: 2, to: 4},
-        {from: 2, to: 5}
-    ]);
-
-    // create a network
-    var container = document.getElementById('mynetwork');
-
-    // provide the data in the vis format
-    var data = {
-        nodes: nodes,
-        edges: edges
-    };
-    var options = {};
-
-    // initialize your network!
-    var network = new vis.Network(container, data, options);
-
     var network;
-
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet();
     var gephiImported;
 
-
     var nodeContent = document.getElementById("nodeContent");
-
 
     var theJson = "";
     $.getJSON("myGraph.json", function() {
         console.log( "success" );
     }).done(function(data){
         theJson = data;
-        console.log(theJson);
         redrawAll(theJson);
     });
-
 
     var container = document.getElementById("mynetwork");
     var data = {
@@ -124,6 +91,19 @@
     network = new vis.Network(container, data, options);
 
 
+    network.on("selectNode", function(params) {
+        if (params.nodes.length === 1) {
+            if (network.isCluster(params.nodes[0]) === true) {
+                network.openCluster(params.nodes[0]);
+            }
+        }
+    });
+    function clusterByConnection() {
+        network.setData(data);
+        network.clusterByConnection(document.getElementById("node_address_input").value);
+    }
+
+
     /**
      * This function fills the DataSets. These DataSets will update the network.
      */
@@ -170,7 +150,6 @@
         }
         return parsed_json;
     }
-
 
 </script>
 </body>
