@@ -96,7 +96,18 @@
     });
     function clusterByConnection() {
         network.setData(data);
-        network.clusterByConnection(document.getElementById("node_address_input").value);
+        let address = document.getElementById("node_address_input").value;
+        let color = data.nodes.get(address).color;
+        var clusterOptionsByData = {
+            clusterNodeProperties: {
+                id: 'cluster_' + address,
+                title: address,
+                label: 'Click to uncluster',
+                color: color,
+                shape: 'hexagon'
+            }
+        };
+        network.clusterByConnection(address, clusterOptionsByData);
     }
 
 
@@ -117,19 +128,20 @@
         nodes.clear();
         edges.clear();
 
-        var parsed_2 = parse_json(gephiJSON);
-        console.log(parsed_2);
+        // var parsed_2 = parse_json(gephiJSON);
+        // console.log(parsed_2);
 
         var parsed = vis.parseGephiNetwork(gephiJSON, {
             fixed: false,
             parseColor: false
         });
 
-        console.log(parsed);
-        console.log(typeof parsed.edges[0]);
+        // console.log(parsed);
+        // console.log(typeof parsed.edges[0]);
         // add the parsed data to the DataSets.
-        nodes.add(parsed.nodes);
-        edges.add(parsed_2.edges);
+
+        nodes.add(gephiJSON.nodes);
+        edges.add(gephiJSON.edges);
 
         var data = nodes.get(2); // get the data from node 2 as example
         // nodeContent.innerHTML = JSON.stringify(data, undefined, 3); // show the data in the div
