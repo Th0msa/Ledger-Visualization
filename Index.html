@@ -59,7 +59,6 @@
             },
         },
         edges: {
-            value: 4,
             smooth: {
                 type: "continuous"
             },
@@ -67,6 +66,11 @@
                 highlight: "rgb(11,233,45)",
                 hover: "rgb(10,9,233)"
             },
+            arrows: {
+                to: {
+                    scaleFactor: 0.5
+                }
+            }
         },
         interaction: {
             tooltipDelay: 200,
@@ -81,6 +85,13 @@
             }
         }
     };
+
+
+
+    var network = new vis.Network(container, data, options);
+
+
+
     console.log(data);
     network = new vis.Network(container, data, options);
 
