@@ -25,6 +25,8 @@
         </div>
     </div>
 </div>
+<!--<div id="mynetwork"></div>-->
+
 <input type="text" placeholder="Address" id="node_address_input">
 <input type="button" onclick="clusterByConnection()" value="Cluster node and its connections"/>
 
@@ -71,20 +73,25 @@
             smooth: {
                 type: "continuous"
             },
-            hidden: false,
             color: {
-                highlight: "rgb(11,233,45)",
+                highlight: '#0000ff',
                 hover: "rgb(10,9,233)"
             },
             arrows: {
                 to: {
                     scaleFactor: 0.5
                 }
-            }
+            },
+            selectionWidth: 5
         },
         interaction: {
+            dragNodes: false,
+
             tooltipDelay: 200,
-            hideEdgesOnDrag: true
+            hideEdgesOnDrag: true,
+            hideEdgesOnZoom: true,
+            selectConnectedEdges: true
+            // hideNodesOnDrag: true
         },
         nodes: {
             shape: "dot",
@@ -100,11 +107,14 @@
         //     }
         // }
         physics: {
+            enabled: true,
             timestep: 0.1,
             adaptiveTimestep: true,
+            maxVelocity: 200,
+            minVelocity: 5,
             stabilization: {
                 enabled: true,
-                iterations: 100,
+                // iterations: 100,
                 updateInterval: 10
             },
             solver: "forceAtlas2Based",
@@ -148,24 +158,23 @@
 
     network.on("stabilizationProgress", function(params) {
         console.log(params);
-        var maxWidth = 496;
-        var minWidth = 20;
+        // var maxWidth = 496;
+        // var minWidth = 20;
         var widthFactor = params.iterations / params.total;
-        var width = Math.max(minWidth, maxWidth * widthFactor);
-        document.getElementById("bar").style.width = width + "px";
+        // var width = Math.max(minWidth, maxWidth * widthFactor);
+        // document.getElementById("bar").style.width = width + "px";
         document.getElementById("text").innerHTML =
             Math.round(widthFactor * 100) + "%";
     });
     network.once("stabilizationIterationsDone", function() {
         document.getElementById("text").innerHTML = "100%";
-        document.getElementById("bar").style.width = "496px";
-        document.getElementById("loadingBar").style.opacity = 0;
-        console.log(network.edges.hidden);
-        network.edges.hidden = false;
-        // really clean the dom element
-        setTimeout(function() {
-            document.getElementById("loadingBar").style.display = "none";
-        }, 500);
+        // document.getElementById("bar").style.width = "496px";
+        // document.getElementById("loadingBar").style.opacity = 0;
+        // // console.log(network.edges.hidden);
+        // // really clean the dom element
+        // setTimeout(function() {
+        //     document.getElementById("loadingBar").style.display = "none";
+        // }, 500);
     });
 
 
@@ -218,6 +227,7 @@
         // add the parsed data to the DataSets.
         nodes.add(gephiJSON.nodes);
         edges.add(gephiJSON.edges);
+        network.stabilize(100);
 
         // for (x in nodes) {
         //     console.log(nodes.get())
