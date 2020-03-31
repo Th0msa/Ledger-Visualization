@@ -14,12 +14,21 @@
     </style>
 </head>
 <body>
-<div id="mynetwork"></div>
+<div id="wrapper">
+    <div id="mynetwork"></div>
+    <div id="loadingBar">
+        <div class="outerBorder">
+            <div id="text">0%</div>
+            <div id="border">
+                <div id="bar"></div>
+            </div>
+        </div>
+    </div>
+</div>
 <input type="text" placeholder="Address" id="node_address_input">
 <input type="button" onclick="clusterByConnection()" value="Cluster node and its connections"/>
 
 <script type="text/javascript">
-    var network;
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet();
     var gephiImported;
@@ -27,7 +36,7 @@
     var nodeContent = document.getElementById("nodeContent");
 
     var theJson = "";
-    $.getJSON("myGraph.json", function() {
+    $.getJSON("converted_test.json", function() {
         console.log( "success" );
     }).done(function(data){
         theJson = data;
@@ -62,6 +71,7 @@
             smooth: {
                 type: "continuous"
             },
+            hidden: false,
             color: {
                 highlight: "rgb(11,233,45)",
                 hover: "rgb(10,9,233)"
@@ -74,44 +84,57 @@
         },
         interaction: {
             tooltipDelay: 200,
-            // hideEdgesOnDrag: true
+            hideEdgesOnDrag: true
         },
         nodes: {
             shape: "dot",
             size: 16
         },
         // physics: {
-        //     forceAtlas2Based: {
-        //         gravitationalConstant: -26,
-        //         centralGravity: 0.005,
-        //         springLength: 230,
-        //         springConstant: 0.18
-        //     },
-        //     maxVelocity: 146,
-        //     solver: "forceAtlas2Based",
-        //     timestep: 0.35,
-        //     stabilization: { iterations: 100 }
+        //     enabled: false,
+        // },
+        // layout: {
+        //     hierarchical: {
+        //         enabled: true,
+        //         direction: 'LR'
+        //     }
         // }
         physics: {
-            stabilization: { iterations: 100 },
-            barnesHut: {
-                gravitationalConstant: -10000,
-                springConstant: 0.002,
-                springLength: 150
+            timestep: 0.1,
+            adaptiveTimestep: true,
+            stabilization: {
+                enabled: true,
+                iterations: 100,
+                updateInterval: 10
             },
-            solver: "barnesHut"
-        }
+            solver: "forceAtlas2Based",
+            forceAtlas2Based: {
+                gravitationalConstant: -500,
+                centralGravity: 0.005,
+                springLength: 230,
+                springConstant: 0.18
+            },
+        },
+        // layout: {
+        //     improvedLayout: true,
+        //     // randomSeed: 123456789
+        // },
+        // physics: {
+        //     stabilization: { iterations: 10000 },
+        //     barnesHut: {
+        //         gravitationalConstant: -50000,
+        //         springConstant: 0.002,
+        //         springLength: 150
+        //     },
+        //     solver: "barnesHut",
+        //     // timestep: 0.1,
+        //     adaptiveTimestep: true
+        // }
     };
-
-
 
     var network = new vis.Network(container, data, options);
 
-
-
     console.log(data);
-    network = new vis.Network(container, data, options);
-
 
     network.on("selectNode", function(params) {
         if (params.nodes.length === 1) {
@@ -122,9 +145,35 @@
         console.log(params);
         document.getElementById("node_address_input").value = params.nodes[0];
     });
+
+    network.on("stabilizationProgress", function(params) {
+        console.log(params);
+        var maxWidth = 496;
+        var minWidth = 20;
+        var widthFactor = params.iterations / params.total;
+        var width = Math.max(minWidth, maxWidth * widthFactor);
+        document.getElementById("bar").style.width = width + "px";
+        document.getElementById("text").innerHTML =
+            Math.round(widthFactor * 100) + "%";
+    });
+    network.once("stabilizationIterationsDone", function() {
+        document.getElementById("text").innerHTML = "100%";
+        document.getElementById("bar").style.width = "496px";
+        document.getElementById("loadingBar").style.opacity = 0;
+        console.log(network.edges.hidden);
+        network.edges.hidden = false;
+        // really clean the dom element
+        setTimeout(function() {
+            document.getElementById("loadingBar").style.display = "none";
+        }, 500);
+    });
+
+
+
     function clusterByConnection() {
         network.setData(data);
         let address = document.getElementById("node_address_input").value;
+        console.log(address);
         let color = data.nodes.get(address).color;
         var clusterOptionsByData = {
             clusterNodeProperties: {
@@ -145,6 +194,7 @@
     function redrawAll(gephiJSON) {
         console.log("fissa");
         console.log(gephiJSON);
+        console.log(gephiJSON.nodes);
         console.log(gephiJSON.edges);
         console.log(gephiJSON.edges[0]);
         if (gephiJSON.nodes === undefined) {
@@ -155,7 +205,6 @@
 
         nodes.clear();
         edges.clear();
-
         // var parsed_2 = parse_json(gephiJSON);
         // console.log(parsed_2);
 
@@ -167,9 +216,23 @@
         // console.log(parsed);
         // console.log(typeof parsed.edges[0]);
         // add the parsed data to the DataSets.
-
         nodes.add(gephiJSON.nodes);
         edges.add(gephiJSON.edges);
+
+        // for (x in nodes) {
+        //     console.log(nodes.get())
+        // }
+
+        var clusterOptionsByData = {
+            clusterNodeProperties: {
+                id: 'cluster_' + "1Facb8QnikfPUoo8WVFnyai3e1Hcov9y8T",
+                title: "1Facb8QnikfPUoo8WVFnyai3e1Hcov9y8T",
+                label: 'Click to uncluster',
+                shape: 'hexagon'
+            }
+        };
+
+        // network.clusterByConnection("1Facb8QnikfPUoo8WVFnyai3e1Hcov9y8T", clusterOptionsByData);
 
         var data = nodes.get(2); // get the data from node 2 as example
         // nodeContent.innerHTML = JSON.stringify(data, undefined, 3); // show the data in the div
