@@ -19,7 +19,6 @@
 <input type="button" onclick="clusterByConnection()" value="Cluster node and its connections"/>
 
 <script type="text/javascript">
-    var network;
     var nodes = new vis.DataSet();
     var edges = new vis.DataSet();
     var gephiImported;
@@ -27,7 +26,7 @@
     var nodeContent = document.getElementById("nodeContent");
 
     var theJson = "";
-    $.getJSON("myGraph.json", function() {
+    $.getJSON("converted_test.json", function() {
         console.log( "success" );
     }).done(function(data){
         theJson = data;
@@ -86,15 +85,9 @@
         }
     };
 
-
-
     var network = new vis.Network(container, data, options);
 
-
-
     console.log(data);
-    network = new vis.Network(container, data, options);
-
 
     network.on("selectNode", function(params) {
         if (params.nodes.length === 1) {
@@ -128,6 +121,7 @@
     function redrawAll(gephiJSON) {
         console.log("fissa");
         console.log(gephiJSON);
+        console.log(gephiJSON.nodes);
         console.log(gephiJSON.edges);
         console.log(gephiJSON.edges[0]);
         if (gephiJSON.nodes === undefined) {
@@ -138,7 +132,6 @@
 
         nodes.clear();
         edges.clear();
-
         // var parsed_2 = parse_json(gephiJSON);
         // console.log(parsed_2);
 
