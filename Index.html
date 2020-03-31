@@ -76,13 +76,30 @@
             tooltipDelay: 200,
             // hideEdgesOnDrag: true
         },
+        nodes: {
+            shape: "dot",
+            size: 16
+        },
+        // physics: {
+        //     forceAtlas2Based: {
+        //         gravitationalConstant: -26,
+        //         centralGravity: 0.005,
+        //         springLength: 230,
+        //         springConstant: 0.18
+        //     },
+        //     maxVelocity: 146,
+        //     solver: "forceAtlas2Based",
+        //     timestep: 0.35,
+        //     stabilization: { iterations: 100 }
+        // }
         physics: {
-            stabilization: false,
+            stabilization: { iterations: 100 },
             barnesHut: {
                 gravitationalConstant: -10000,
                 springConstant: 0.002,
                 springLength: 150
-            }
+            },
+            solver: "barnesHut"
         }
     };
 
