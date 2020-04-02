@@ -41,7 +41,7 @@
 // <<<<<<< HEAD
 //     $.getJSON("converted_1JRBisFrtAsY4E49419PSW6hLePH6jUdGi.json", function() {
 // =======
-    $.getJSON("converted_14ee2y99gEXeQXJ7RxrPv4G6ELL3A6gfFq.json", function() {
+    $.getJSON("converted_1LYz7EgAF8PU6bSN8GDecnz9Gg814fs81W.json", function() {
         console.log( "success" );
     }).done(function(data){
         theJson = data;
@@ -113,8 +113,8 @@
             enabled: true,
             timestep: 0.1,
             adaptiveTimestep: true,
-            maxVelocity: 100,
-            minVelocity: 5,
+            maxVelocity: 1000,
+            minVelocity: 30,
             stabilization: {
                 enabled: true,
                 // iterations: 100,
@@ -123,7 +123,8 @@
             solver: "forceAtlas2Based",
             forceAtlas2Based: {
                 gravitationalConstant: -200,
-                centralGravity: 0.005,
+                centralGravity: 0.010,
+                damping: 1,
                 springLength: 230,
                 springConstant: 0.18
             },
