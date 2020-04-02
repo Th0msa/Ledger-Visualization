@@ -7,9 +7,51 @@
 
     <style type="text/css">
         #mynetwork {
-            width: 95vw;
-            height: 95vh;
+            width: 98vw;
+            height: 90vh;
             border: 1px solid lightgray;
+        }
+        .dot {
+            height: 25px;
+            width: 25px;
+            /*margin-left: 15px;*/
+            border: 1px black;
+            border-radius: 50%;
+            display: inline-block;
+            /*position: center;*/
+        }
+        .mal {
+            background-color: rgb(233,9,26);
+
+        }
+        .vic {
+            background-color: rgb(26,19,233);
+
+        }
+        .ser {
+            background-color: rgb(102,233,64);
+        }
+        .beg {
+            background-color: rgb(159,159,163);
+        }
+        .label {
+            margin-top: 0px;
+        }
+        .column_1 {
+            float: left;
+            width: 30%;
+        }
+        .column_2 {
+            float: left;
+            width: 7%;
+            text-align: center;
+        }
+
+        /* Clear floats after the columns */
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
         }
     </style>
 </head>
@@ -27,8 +69,28 @@
 </div>
 <!--<div id="mynetwork"></div>-->
 
-<input type="text" placeholder="Address" id="node_address_input">
-<input type="button" onclick="clusterByConnection()" value="Cluster node and its connections"/>
+<div class="row">
+    <div class="column_1">
+        <input type="text" placeholder="Address" id="node_address_input">
+        <input type="button" onclick="clusterByConnection()" value="Cluster node and its connections"/>
+    </div>
+    <div class="column_2">
+        <span class="dot mal"></span>
+        <p class="label">Malicious</p>
+    </div>
+    <div class="column_2">
+        <span class="dot vic"></span>
+        <p class="label">Victim</p>
+    </div>
+    <div class="column_2">
+        <span class="dot ser"></span>
+        <p class="label">Service</p>
+    </div>
+    <div class="column_2">
+        <span class="dot beg"></span>
+        <p class="label">Benign</p>
+    </div>
+</div>
 
 <script type="text/javascript">
     var nodes = new vis.DataSet();
@@ -38,9 +100,7 @@
     var nodeContent = document.getElementById("nodeContent");
 
     var theJson = "";
-// <<<<<<< HEAD
-//     $.getJSON("converted_1JRBisFrtAsY4E49419PSW6hLePH6jUdGi.json", function() {
-// =======
+
     $.getJSON("converted_1LYz7EgAF8PU6bSN8GDecnz9Gg814fs81W.json", function() {
         console.log( "success" );
     }).done(function(data){
@@ -49,6 +109,8 @@
     });
 
     var container = document.getElementById("mynetwork");
+
+
     var data = {
         nodes: nodes,
         edges: edges
@@ -221,6 +283,52 @@
         // var parsed_2 = parse_json(gephiJSON);
         // console.log(parsed_2);
 
+        // // Legend
+        // var x = -3000;
+        // var y = 0;
+        // var step = 70;
+        //
+        // nodes.add({
+        //     id: 1000,
+        //     x: x,
+        //     y: y,
+        //     label: "Malicious",
+        //     color: "rgb(233,9,26)",
+        //     value: 1,
+        //     fixed: true,
+        //     physics: false
+        // });
+        // nodes.add({
+        //     id: 1001,
+        //     x: x,
+        //     y: y + step,
+        //     label: "Victim",
+        //     color: "rgb(26,19,233)",
+        //     value: 1,
+        //     fixed: true,
+        //     physics: false
+        // });
+        // nodes.add({
+        //     id: 1002,
+        //     x: x,
+        //     y: y + 2 * step,
+        //     label: "Service",
+        //     color: "rgb(102,233,64)",
+        //     value: 1,
+        //     fixed: true,
+        //     physics: false
+        // });
+        // nodes.add({
+        //     id: 1003,
+        //     x: x,
+        //     y: y + 3 * step,
+        //     label: "Benign",
+        //     color: "rgb(159,159,163)",
+        //     value: 1,
+        //     fixed: true,
+        //     physics: false
+        // });
+
         var parsed = vis.parseGephiNetwork(gephiJSON, {
             fixed: false,
             parseColor: false
@@ -231,7 +339,10 @@
         // add the parsed data to the DataSets.
         nodes.add(gephiJSON.nodes);
         edges.add(gephiJSON.edges);
-        network.stabilize(1000);
+
+
+
+        network.stabilize(100);
 
         // for (x in nodes) {
         //     console.log(nodes.get())
