@@ -38,7 +38,7 @@
     var nodeContent = document.getElementById("nodeContent");
 
     var theJson = "";
-    $.getJSON("converted_test.json", function() {
+    $.getJSON("converted_1JRBisFrtAsY4E49419PSW6hLePH6jUdGi.json", function() {
         console.log( "success" );
     }).done(function(data){
         theJson = data;
@@ -110,7 +110,7 @@
             enabled: true,
             timestep: 0.1,
             adaptiveTimestep: true,
-            maxVelocity: 200,
+            maxVelocity: 100,
             minVelocity: 5,
             stabilization: {
                 enabled: true,
@@ -227,20 +227,20 @@
         // add the parsed data to the DataSets.
         nodes.add(gephiJSON.nodes);
         edges.add(gephiJSON.edges);
-        network.stabilize(100);
+        network.stabilize(1000);
 
         // for (x in nodes) {
         //     console.log(nodes.get())
         // }
 
-        var clusterOptionsByData = {
-            clusterNodeProperties: {
-                id: 'cluster_' + "1Facb8QnikfPUoo8WVFnyai3e1Hcov9y8T",
-                title: "1Facb8QnikfPUoo8WVFnyai3e1Hcov9y8T",
-                label: 'Click to uncluster',
-                shape: 'hexagon'
-            }
-        };
+        // var clusterOptionsByData = {
+        //     clusterNodeProperties: {
+        //         id: 'cluster_' + "1Facb8QnikfPUoo8WVFnyai3e1Hcov9y8T",
+        //         title: "1Facb8QnikfPUoo8WVFnyai3e1Hcov9y8T",
+        //         label: 'Click to uncluster',
+        //         shape: 'hexagon'
+        //     }
+        // };
 
         // network.clusterByConnection("1Facb8QnikfPUoo8WVFnyai3e1Hcov9y8T", clusterOptionsByData);
 
