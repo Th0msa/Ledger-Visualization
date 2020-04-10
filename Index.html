@@ -4,7 +4,6 @@
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-
     <style type="text/css">
         /*
         * The styling for the container of the network.
@@ -262,6 +261,9 @@
         nodes.add(JSON.nodes);
         edges.add(JSON.edges);
 
+        /**
+         * Decrease this number to get faster loading, but less stable graphs. Not recommended for large graphs.
+         */
         network.stabilize(1000);
         network.fit();
     }
