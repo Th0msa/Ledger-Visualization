@@ -4,15 +4,59 @@
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-
     <style type="text/css">
+        /*
+        * The styling for the container of the network.
+        */
         #mynetwork {
-            width: 95vw;
-            height: 95vh;
+            width: 98vw;
+            height: 88vh;
             border: 1px solid lightgray;
+        }
+
+        /*
+        * The styling for the legend.
+        */
+        .dot {
+            height: 25px;
+            width: 25px;
+            border: 1px black;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .mal {
+            background-color: rgb(233,9,26);
+        }
+        .vic {
+            background-color: rgb(26,19,233);
+        }
+        .ser {
+            background-color: rgb(102,233,64);
+        }
+        .beg {
+            background-color: rgb(159,159,163);
+        }
+        .label {
+            margin-top: 0px;
+        }
+        .column_1 {
+            float: left;
+            width: 30%;
+        }
+        .column_2 {
+            float: left;
+            width: 7%;
+            text-align: center;
+        }
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
         }
     </style>
 </head>
+
+<!--The container of the network and the loading bar-->
 <body>
 <div id="wrapper">
     <div id="mynetwork"></div>
@@ -25,34 +69,73 @@
         </div>
     </div>
 </div>
-<!--<div id="mynetwork"></div>-->
 
-<input type="text" placeholder="Address" id="node_address_input">
-<input type="button" onclick="clusterByConnection()" value="Cluster node and its connections"/>
+
+<!--The cluster feature and the legend-->
+<div class="row">
+    <div class="column_1">
+        <input type="text" placeholder="Address" id="node_address_input">
+        <input type="button" onclick="clusterByConnection()" value="Cluster node and its connections"/>
+    </div>
+    <div class="column_2">
+        <span class="dot mal"></span>
+        <p class="label">Malicious</p>
+    </div>
+    <div class="column_2">
+        <span class="dot vic"></span>
+        <p class="label">Victim</p>
+    </div>
+    <div class="column_2">
+        <span class="dot ser"></span>
+        <p class="label">Service</p>
+    </div>
+    <div class="column_2">
+        <span class="dot beg"></span>
+        <p class="label">Benign</p>
+    </div>
+</div>
 
 <script type="text/javascript">
-    var nodes = new vis.DataSet();
-    var edges = new vis.DataSet();
-    var gephiImported;
 
-    var nodeContent = document.getElementById("nodeContent");
+    /**
+     * This initializes the nodes.
+     */
+    let nodes = new vis.DataSet();
 
-    var theJson = "";
+    /**
+     * This initializes the edges.
+     */
+    let edges = new vis.DataSet();
+
+    /**
+     * This function loads the JSON and calls the redraw function.
+     */
     $.getJSON("converted_file.json", function() {
         console.log( "success" );
     }).done(function(data){
-        theJson = data;
-        redrawAll(theJson);
+        redrawAll(data);
     });
 
-    var container = document.getElementById("mynetwork");
-    var data = {
+    /**
+     * This defines the container for the network.
+     */
+    let container = document.getElementById("mynetwork");
+
+    /**
+     * This initializes the node and edge data.
+     */
+    let data = {
         nodes: nodes,
         edges: edges
     };
-    var options = {
+
+    /**
+     * This defines the options of the network.
+     */
+    let options = {
         nodes: {
             shape: "dot",
+            size: 16,
             font: {
                 face: "Tahoma"
             },
@@ -86,26 +169,12 @@
         },
         interaction: {
             dragNodes: false,
-
             tooltipDelay: 200,
             hideEdgesOnDrag: true,
             hideEdgesOnZoom: true,
             selectConnectedEdges: true
             // hideNodesOnDrag: true
         },
-        nodes: {
-            shape: "dot",
-            size: 16
-        },
-        // physics: {
-        //     enabled: false,
-        // },
-        // layout: {
-        //     hierarchical: {
-        //         enabled: true,
-        //         direction: 'LR'
-        //     }
-        // }
         physics: {
             enabled: true,
             timestep: 0.1,
@@ -114,7 +183,6 @@
             minVelocity: 30,
             stabilization: {
                 enabled: true,
-                // iterations: 100,
                 updateInterval: 10
             },
             solver: "forceAtlas2Based",
@@ -125,65 +193,37 @@
                 springLength: 230,
                 springConstant: 0.18
             },
-        },
-        // layout: {
-        //     improvedLayout: true,
-        //     // randomSeed: 123456789
-        // },
-        // physics: {
-        //     stabilization: { iterations: 10000 },
-        //     barnesHut: {
-        //         gravitationalConstant: -50000,
-        //         springConstant: 0.002,
-        //         springLength: 150
-        //     },
-        //     solver: "barnesHut",
-        //     // timestep: 0.1,
-        //     adaptiveTimestep: true
-        // }
+        }
     };
 
-    var network = new vis.Network(container, data, options);
+    /**
+     * This builds the network. Using the container, node and edge data and the options.
+     */
+    let network = new vis.Network(container, data, options);
 
-    console.log(data);
-
-    network.on("selectNode", function(params) {
-        if (params.nodes.length === 1) {
-            if (network.isCluster(params.nodes[0]) === true) {
-                network.openCluster(params.nodes[0]);
-            }
-        }
-        console.log(params);
-        document.getElementById("node_address_input").value = params.nodes[0];
-    });
-
+    /**
+     * This function indicate the progress of the loading progress of the graph.
+     */
     network.on("stabilizationProgress", function(params) {
-        console.log(params);
-        // var maxWidth = 496;
-        // var minWidth = 20;
         var widthFactor = params.iterations / params.total;
-        // var width = Math.max(minWidth, maxWidth * widthFactor);
-        // document.getElementById("bar").style.width = width + "px";
         document.getElementById("text").innerHTML =
             Math.round(widthFactor * 100) + "%";
     });
+
+    /**
+     * This function indicate the completion of the loading progress of the graph.
+     */
     network.once("stabilizationIterationsDone", function() {
         document.getElementById("text").innerHTML = "100%";
-        // document.getElementById("bar").style.width = "496px";
-        // document.getElementById("loadingBar").style.opacity = 0;
-        // // console.log(network.edges.hidden);
-        // // really clean the dom element
-        // setTimeout(function() {
-        //     document.getElementById("loadingBar").style.display = "none";
-        // }, 500);
     });
 
-
-
+    /**
+     * This function clusters the selected node.
+     */
     function clusterByConnection() {
         network.setData(data);
         let address = document.getElementById("node_address_input").value;
-        console.log(address);
+        // console.log(address);
         let color = data.nodes.get(address).color;
         var clusterOptionsByData = {
             clusterNodeProperties: {
@@ -197,69 +237,37 @@
         network.clusterByConnection(address, clusterOptionsByData);
     }
 
+    /**
+     * This function unclusters a node when selected.
+     */
+    network.on("selectNode", function(params) {
+        if (params.nodes.length === 1) {
+            if (network.isCluster(params.nodes[0]) === true) {
+                network.openCluster(params.nodes[0]);
+            }
+        }
+        document.getElementById("node_address_input").value = params.nodes[0];
+    });
+
 
     /**
-     * This function fills the DataSets. These DataSets will update the network.
+     * This function fills the DataSets from a JSON and updates the network.
      */
-    function redrawAll(gephiJSON) {
-        console.log("fissa");
-        console.log(gephiJSON);
-        console.log(gephiJSON.nodes);
-        console.log(gephiJSON.edges);
-        console.log(gephiJSON.edges[0]);
-        if (gephiJSON.nodes === undefined) {
-            gephiJSON = gephiImported;
-        } else {
-            gephiImported = gephiJSON;
-        }
+    function redrawAll(JSON) {
 
         nodes.clear();
         edges.clear();
-        // var parsed_2 = parse_json(gephiJSON);
-        // console.log(parsed_2);
 
-        var parsed = vis.parseGephiNetwork(gephiJSON, {
-            fixed: false,
-            parseColor: false
-        });
+        nodes.add(JSON.nodes);
+        edges.add(JSON.edges);
 
-        // console.log(parsed);
-        // console.log(typeof parsed.edges[0]);
-        // add the parsed data to the DataSets.
-        nodes.add(gephiJSON.nodes);
-        edges.add(gephiJSON.edges);
+        /**
+         * Decrease this number to get faster loading, but less stable graphs. Not recommended for large graphs.
+         */
         network.stabilize(1000);
-
-        // for (x in nodes) {
-        //     console.log(nodes.get())
-        // }
-
-        // var clusterOptionsByData = {
-        //     clusterNodeProperties: {
-        //         id: 'cluster_' + "1Facb8QnikfPUoo8WVFnyai3e1Hcov9y8T",
-        //         title: "1Facb8QnikfPUoo8WVFnyai3e1Hcov9y8T",
-        //         label: 'Click to uncluster',
-        //         shape: 'hexagon'
-        //     }
-        // };
-
-        // network.clusterByConnection("1Facb8QnikfPUoo8WVFnyai3e1Hcov9y8T", clusterOptionsByData);
-
-        var data = nodes.get(2); // get the data from node 2 as example
-        // nodeContent.innerHTML = JSON.stringify(data, undefined, 3); // show the data in the div
-        network.fit(); // zoom to fit
+        network.fit();
     }
 
-    function parse_json(JSON) {
-        let parsed_json = [];
-        parsed_json.edges = [];
-        parsed_json.nodes = [];
-
-        for(i=0;i < JSON.edges.length;i++) {
-            parsed_json.edges.push({from:JSON.edges[i].source,to:JSON.edges[i].target,value:JSON.edges[i].width,color:JSON.edges[i].color})
-        }
-        return parsed_json;
-    }
 
 </script>
 </body>
